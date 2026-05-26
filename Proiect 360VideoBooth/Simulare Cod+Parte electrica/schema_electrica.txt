@@ -1,0 +1,151 @@
+================================================================================
+SCHEMA ELECTRICA - 360 VIDEO BOOTH
+================================================================================
+
+1. ALIMENTARE
+-------------
+   PRIZA 230V AC
+        |
+        +--> SURSA COMUTATIE 24V DC / 10A (240W)
+        |       |
+        |       +--> +24V --> SIGURANTA 10A --> BTS7960 (B+)
+        |       +--> GND  --> BTS7960 (B-) [comun cu Arduino]
+        |
+        +--> SURSA 12V DC / 5A (60W)
+        |       |
+        |       +--> +12V --> Ring Light LED (prin intrerupator ON/OFF)
+        |
+        +--> ADAPTOR 9V / 1A
+                |
+                +--> Arduino Uno (mufa DC)
+
+
+2. DRIVER MOTOR BTS7960
+-----------------------
+   PIN BTS7960     | CONECTAT LA           | OBSERVATII
+   ----------------+-----------------------+----------------------------
+   B+              | +24V sursa            | Borna alimentare motor
+   B-              | GND sursa             | Borna alimentare motor
+   M+              | Borna 1 motor Valeo   | Iesire H-bridge
+   M-              | Borna 2 motor Valeo   | Iesire H-bridge
+   RPWM            | Arduino D9 (PWM)      | Comanda PWM sens dreapta
+   LPWM            | Arduino D10 (PWM)     | Comanda PWM sens stanga (neutilizat)
+   R_EN            | Arduino D7            | Enable jumatate dreapta
+   L_EN            | Arduino D8            | Enable jumatate stanga
+   R_IS            | NC                    | Iesire sens curent (optional)
+   L_IS            | NC                    | Iesire sens curent (optional)
+   VCC             | Arduino 5V            | Alimentare logica driver
+   GND             | Arduino GND           | Masa comuna
+
+
+3. CONTROALE OPERATOR
+---------------------
+
+   BUTON START (verde, momentan, normal-deschis NO):
+      Borna 1 ----> Arduino D2 (INPUT_PULLUP)
+      Borna 2 ----> GND
+      Apasare = scurtcircuit -> D2 trece la LOW
+
+   BUTON E-STOP (rosu, ciuperca, normal-inchis NC):
+      Borna 1 ----> Arduino D3 (INPUT_PULLUP)
+      Borna 2 ----> GND
+      In stare normala (apasat = OFF): contact INCHIS -> D3 = LOW
+      Apasare (oprire urgenta): contact DESCHIS -> D3 = HIGH (sesizat de software)
+
+   POTENTIOMETRU REGLAJ VITEZA (10 kOhm, lineari):
+      Pin 1 (CCW) ----> GND
+      Pin 2 (cursor) -> Arduino A0
+      Pin 3 (CW) ----> Arduino 5V
+
+   LED STARE (galben, 5mm):
+      Anod (+) ----> Rezistenta 220 ohm ----> Arduino D13
+      Catod (-) --> GND
+
+
+4. CABLAJ MOTOR VALEO-NIDEC
+---------------------------
+   Cablu 2 fire 2.5 mmp, lungime <= 1m:
+      Borna pozitiva motor -> M+ BTS7960
+      Borna negativa motor -> M- BTS7960
+   Sensul fizic de rotatie se inverseaza prin schimbarea conexiunilor M+/M-
+   sau prin software (folosirea LPWM in loc de RPWM).
+
+
+5. ILUMINARE - RING LIGHT
+-------------------------
+   Ring light LED 12V (cca. 20W):
+      +12V ----> Intrerupator ON/OFF ----> Anod ring light
+      GND  ----> Catod ring light
+   Decuplat de circuitul de comanda - functioneaza independent.
+
+
+6. PROTECTIE SI SIGURANTA
+-------------------------
+   - Diode flyback integrate in BTS7960 (TLE7960B, fiecare jumatate)
+   - Condensator electrolitic 470 uF / 35V intre B+ si B- (BTS7960)
+   - Condensator ceramic 100 nF intre VCC si GND BTS7960
+   - Siguranta fuzibila 10A in serie cu +24V intre sursa si driver
+   - Buton E-STOP intrerupe efectiv puterea (ideal: contactor 24V comandat de buton)
+   - Conductor de protectie PE de la priza la sasiu metalic structura
+   - Toate cablurile MOTOR si SURSA dimensionate min. 2.5 mmp
+
+
+7. LISTA COMPONENTE ELECTRICE
+-----------------------------
+   Nr  | Componenta                          | Cant | Pret est (EUR)
+   ----+-------------------------------------+------+----------------
+   1   | Arduino Uno R3 (sau clona)          | 1    | 10
+   2   | Driver BTS7960 43A                  | 1    | 8
+   3   | Sursa 24V 10A 240W                  | 1    | 25
+   4   | Sursa 12V 5A 60W                    | 1    | 12
+   5   | Adaptor 9V 1A Arduino               | 1    | 6
+   6   | Buton momentan verde 22mm           | 1    | 4
+   7   | Buton ciuperca E-STOP rosu 22mm     | 1    | 8
+   8   | Potentiometru 10k lineari           | 1    | 2
+   9   | LED galben 5mm + rezistor 220ohm    | 1    | 0.5
+   10  | Cablu motor 2x2.5 mmp / 2m          | 1    | 4
+   11  | Cabluri legare panou / set          | 1    | 8
+   12  | Siguranta fuzibila 10A + soclu      | 1    | 3
+   13  | Cutie / panou comanda IP54          | 1    | 18
+   14  | Ring light LED 12V D300mm           | 1    | 35
+   15  | Conectori, terminale, mufe          | -    | 10
+   ----+-------------------------------------+------+----------------
+                                       TOTAL aprox. 153 EUR
+
+
+8. DIAGRAMA BLOC
+----------------
+
+   +------------+      +-------------+      +------------+
+   | Sursa 24V  +----->| Siguranta   +----->| BTS7960    |
+   | 240W       |      | 10A         |      | (puntea H) |
+   +------------+      +-------------+      +-----+------+
+                                                  |
+                                              M+  | M-
+                                                  v
+                                         +--------+---------+
+                                         | Motor Valeo-Nidec|
+                                         | 24V DC + reductor|
+                                         +--------+---------+
+                                                  |
+                                                  v
+                                            (transmisie pulley 4:1)
+                                                  |
+                                                  v
+                                            Platforma rotativa
+                                            D700mm cu persoana
+
+   +------------+
+   | Arduino    +<--- A0 <-- Potentiometru viteza
+   | Uno        |
+   |            +<--- D2 <-- Buton START
+   |            +<--- D3 <-- Buton E-STOP
+   |            +---> D7  --> R_EN BTS7960
+   |            +---> D8  --> L_EN BTS7960
+   |            +---> D9  --> RPWM BTS7960
+   |            +---> D10 --> LPWM BTS7960
+   |            +---> D13 --> LED stare
+   +-----+------+
+         | adaptor 9V
+         v
+       priza

@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "author": "Schiopu Andrei Viorel",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 200, "left": 100, "attrs": {} },
+
+    { "type": "wokwi-pushbutton", "id": "btn_start", "top": -80, "left": 200,
+      "attrs": { "color": "green", "label": "START" } },
+    { "type": "wokwi-pushbutton", "id": "btn_estop", "top": -80, "left": 340,
+      "attrs": { "color": "red", "label": "E-STOP" } },
+
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": -60, "left": 500,
+      "attrs": { "value": "512" } },
+
+    { "type": "wokwi-led", "id": "led_state", "top": 60, "left": -100,
+      "attrs": { "color": "yellow", "label": "STATE (D13)" } },
+    { "type": "wokwi-resistor", "id": "r_state", "top": 110, "left": -100,
+      "attrs": { "value": "220" } },
+
+    { "type": "wokwi-led", "id": "led_rpwm", "top": 260, "left": -100,
+      "attrs": { "color": "blue", "label": "RPWM (D9)" } },
+    { "type": "wokwi-resistor", "id": "r_rpwm", "top": 310, "left": -100,
+      "attrs": { "value": "220" } },
+
+    { "type": "wokwi-stepper-motor", "id": "sim_motor", "top": 180, "left": 580,
+      "attrs": { "label": "PLATFORMA 360" } }
+  ],
+  "connections": [
+    [ "uno:GND.1", "btn_start:1.l", "black", [ "v0" ] ],
+    [ "uno:2",     "btn_start:2.l", "green", [ "v0" ] ],
+
+    [ "uno:GND.1", "btn_estop:1.l", "black", [ "v0" ] ],
+    [ "uno:3",     "btn_estop:2.l", "red",   [ "v0" ] ],
+
+    [ "uno:5V",    "pot1:VCC", "red",    [ "v0" ] ],
+    [ "uno:GND.1", "pot1:GND", "black",  [ "v0" ] ],
+    [ "uno:A0",    "pot1:SIG", "orange", [ "v0" ] ],
+
+    [ "uno:13",    "r_state:1",   "yellow", [ "v0" ] ],
+    [ "r_state:2", "led_state:A", "yellow", [ "v0" ] ],
+    [ "led_state:C", "uno:GND.1", "black",  [ "v0" ] ],
+
+    [ "uno:9",     "r_rpwm:1",   "blue",  [ "v0" ] ],
+    [ "r_rpwm:2",  "led_rpwm:A", "blue",  [ "v0" ] ],
+    [ "led_rpwm:C","uno:GND.1",  "black", [ "v0" ] ],
+
+    [ "uno:4",  "sim_motor:A-", "purple", [ "v0" ] ],
+    [ "uno:5",  "sim_motor:A+", "cyan",   [ "v0" ] ],
+    [ "uno:6",  "sim_motor:B-", "magenta",[ "v0" ] ],
+    [ "uno:11", "sim_motor:B+", "orange", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
